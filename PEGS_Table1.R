@@ -85,7 +85,7 @@ final$atopicd_group <- ifelse(final$atopicd_groupct  >= 1, 1,0)
 
 library(tableone)
 ## Vector of variables to summarize
-myVars <- c("age_derived" , "gender"  ,  "race"  ,"ethnicity" , "AI_count","dual_addresses", "atopicd_group", "sclerosis_group" )
+myVars <- c("age_derived" , "gender"  ,  "race"  ,"ethnicity" , "AI_count","dual_addresses", "atopicd_groupct","sclerosis_groupct", "atopicd_group", "sclerosis_group" )
 ## Vector of categorical variables that need transformation
 catVars <- c( "gender"  ,  "race"  ,"ethnicity", "dual_addresses", "atopicd_group", "sclerosis_group")
 
@@ -94,8 +94,9 @@ library(stringr)
 tab2 <- CreateTableOne(vars = myVars, data = final, factorVars = catVars)
 tab3 <- NULL
 
-
-
+data <- subset(final, sclerosis_group == 1 | atopicd_group == 1)
+mean(data$sclerosis_groupct)
+mean(data$atopicd_groupct)
 #for (i in 1:14)
 #{
 #  dat1 <- as.data.frame(tab2$CatTable$Overall[i])
