@@ -62,11 +62,17 @@ for (i in 1:length(filenames_TRI)){
 
 
 
-TOLUENE2 <- subset(TOLUENE, select= c(X12..LATITUDE, X13..LONGITUDE, X4..FACILITY.NAME, X45..5.1...FUGITIVE.AIR,X46..5.2...STACK.AIR))
-BENZENE2 <- subset(BENZENE, select= c(X12..LATITUDE, X13..LONGITUDE, X4..FACILITY.NAME, X45..5.1...FUGITIVE.AIR,X46..5.2...STACK.AIR))
-XYLENE2 <- subset(XYLENE, select= c(X12..LATITUDE, X13..LONGITUDE, X4..FACILITY.NAME, X45..5.1...FUGITIVE.AIR,X46..5.2...STACK.AIR))
-EB2 <- subset(EB, select= c(X12..LATITUDE, X13..LONGITUDE, X4..FACILITY.NAME, X45..5.1...FUGITIVE.AIR,X46..5.2...STACK.AIR))
+TOLUENE2 <- subset(TOLUENE, select= c(X12..LATITUDE, X13..LONGITUDE, X4..FACILITY.NAME, X45..5.1...FUGITIVE.AIR,X46..5.2...STACK.AIR,X6..CITY,X7..COUNTY,X8..ST))
+BENZENE2 <- subset(BENZENE, select= c(X12..LATITUDE, X13..LONGITUDE, X4..FACILITY.NAME, X45..5.1...FUGITIVE.AIR,X46..5.2...STACK.AIR,X6..CITY,X7..COUNTY,X8..ST))
+XYLENE2 <- subset(XYLENE, select= c(X12..LATITUDE, X13..LONGITUDE, X4..FACILITY.NAME, X45..5.1...FUGITIVE.AIR,X46..5.2...STACK.AIR,X6..CITY,X7..COUNTY,X8..ST))
+EB2 <- subset(EB, select= c(X12..LATITUDE, X13..LONGITUDE, X4..FACILITY.NAME, X45..5.1...FUGITIVE.AIR,X46..5.2...STACK.AIR,X6..CITY,X7..COUNTY,X8..ST))
 
+states <- c("AL","AZ","AR","CA", "CO", "CT", "DE", "FL","GA","ID","IL","IN","IA", "KS","KY","LA","ME","MD","MA","MI",
+          "MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX", "UT","VT", "VA","WA","WV","WI","WY","DC")
+TOLUENE2 <- subset(TOLUENE2, TOLUENE2$X8..ST %in% states)
+BENZENE2 <- subset(BENZENE2, BENZENE2$X8..ST %in% states)
+XYLENE2 <- subset(XYLENE2, XYLENE2$X8..ST %in% states)
+EB2 <- subset(EB2, EB2$X8..ST %in% states)
 
 write.csv(TOLUENE2, file="~/Desktop/TRI/TOLUENE_allyears.csv", row.names=F) #all addresses
 write.csv(BENZENE2, file="~/Desktop/TRI/BENZENE_allyears.csv", row.names=F) #all addresses
@@ -80,15 +86,26 @@ write.csv(EB2, file="~/Desktop/TRI/TOLUENE_allyears.csv", row.names=F) #all addr
 #Turn these into spatial points dataframes
 
 
-names(TOLUENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air")
-names(BENZENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air")
-names(XYLENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air")
-names(EB2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air")
+names(TOLUENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state")
+names(BENZENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state")
+names(XYLENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state")
+names(EB2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state")
+
+TOLUENE2$location <- paste(TOLUENE2$latitude, TOLUENE2$longitude)
+TOLUENE3 <- unique(TOLUENE2)
+
+length(unique(TOLUENE2$location))
+TOLUENE3 <- sf:::as_Spatial(st_as_sf(TOLUENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
+BENZENE3 <- sf:::as_Spatial(st_as_sf(BENZENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
+XYLENE3 <- sf:::as_Spatial(st_as_sf(XYLENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
+EB3 <- sf:::as_Spatial(st_as_sf(EB2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
+
+TOLUENE4 <- spTransform(TOLUENE3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") ) 
+BENZENE4 <- spTransform(BENZENE3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") ) 
+XYLENE4 <- spTransform(XYLENE3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") ) 
+EB4 <- spTransform(EB3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") ) 
 
 
-TOLUENE3 <- st_as_sf(TOLUENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs")
 
-BENZENE3 <- st_as_sf(BENZENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs")
-XYLENE3 <- st_as_sf(XYLENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs")
-EB3 <- st_as_sf(EB2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs")
 
+matrixtest <- pointDistance(TOLUENE4, spdf2, lonlat=F, allpairs=T)
