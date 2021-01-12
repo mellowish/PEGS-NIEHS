@@ -74,10 +74,21 @@ BENZENE2 <- subset(BENZENE2, BENZENE2$X8..ST %in% states)
 XYLENE2 <- subset(XYLENE2, XYLENE2$X8..ST %in% states)
 EB2 <- subset(EB2, EB2$X8..ST %in% states)
 
-write.csv(TOLUENE2, file="~/Desktop/TRI/TOLUENE_allyears.csv", row.names=F) #all addresses
-write.csv(BENZENE2, file="~/Desktop/TRI/BENZENE_allyears.csv", row.names=F) #all addresses
-write.csv(XYLENE2, file="~/Desktop/TRI/XYLENE_allyears.csv", row.names=F) #all addresses
-write.csv(EB2, file="~/Desktop/TRI/TOLUENE_allyears.csv", row.names=F) #all addresses
+TOLUENE2$location <- paste0(TOLUENE2$X12..LATITUDE, TOLUENE2$X13..LONGITUDE)
+length(unique(TOLUENE2$location))
+BENZENE2$location <- paste0(BENZENE2$X12..LATITUDE, BENZENE2$X13..LONGITUDE)
+length(unique(BENZENE2$location))
+XYLENE2$location <- paste0(XYLENE2$X12..LATITUDE, XYLENE2$X13..LONGITUDE)
+length(unique(XYLENE2$location))
+EB2$location <- paste0(EB2$X12..LATITUDE, EB2$X13..LONGITUDE)
+length(unique(EB2$location))
+
+
+
+write.csv(TOLUENE2, file="~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv", row.names=F) #all addresses
+write.csv(BENZENE2, file="~/Desktop/TRI/tri_tot/BENZENE_allyears.csv", row.names=F) #all addresses
+write.csv(XYLENE2, file="~/Desktop/TRI/tri_tot/XYLENE_allyears.csv", row.names=F) #all addresses
+write.csv(EB2, file="~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv", row.names=F) #all addresses
 
 
 #Melissa will do research on finding mean values across single point over multiple years.
@@ -86,15 +97,12 @@ write.csv(EB2, file="~/Desktop/TRI/TOLUENE_allyears.csv", row.names=F) #all addr
 #Turn these into spatial points dataframes
 
 
-names(TOLUENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state")
-names(BENZENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state")
-names(XYLENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state")
-names(EB2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state")
+names(TOLUENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state", "location")
+names(BENZENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state", "location")
+names(XYLENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state", "location")
+names(EB2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state", "location")
 
-TOLUENE2$location <- paste(TOLUENE2$latitude, TOLUENE2$longitude)
-TOLUENE3 <- unique(TOLUENE2)
 
-length(unique(TOLUENE2$location))
 TOLUENE3 <- sf:::as_Spatial(st_as_sf(TOLUENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
 BENZENE3 <- sf:::as_Spatial(st_as_sf(BENZENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
 XYLENE3 <- sf:::as_Spatial(st_as_sf(XYLENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
@@ -106,6 +114,10 @@ XYLENE4 <- spTransform(XYLENE3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37
 EB4 <- spTransform(EB3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") ) 
 
 
+#sparse matrices? 
+#determine the size in bytes - convert to mb or gb and run a loop to create matrices of different sizes
 
-
-matrixtest <- pointDistance(TOLUENE4, spdf2, lonlat=F, allpairs=T)
+matrixtest_t <- pointDistance(TOLUENE4, spdf2, lonlat=F, allpairs=T)
+matrixtest_b <- pointDistance(BENZENE4, spdf2, lonlat=F, allpairs=T)
+matrixtest_x <- pointDistance(XYLENE4, spdf2, lonlat=F, allpairs=T)
+matrixtest_eb <- pointDistance(EB4, spdf2, lonlat=F, allpairs=T)
