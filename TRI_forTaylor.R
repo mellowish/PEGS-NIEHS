@@ -30,7 +30,7 @@ spdf2 <- spTransform(spdf,  CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +
 
 
 
-files.dir <- "~/Desktop/TRI" 
+files.dir <- "~/Desktop/TRI/tri_val" 
 
 filenames_TRI <- list.files(path=files.dir, full.names=T) 
 
@@ -102,11 +102,16 @@ names(BENZENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_a
 names(XYLENE2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state", "location")
 names(EB2) <- c("latitude","longitude","facility", "fugitive_air" ,"stack_air","city", "county", "state", "location")
 
+TOLUENE25 <- unique(subset(TOLUENE2, select=c("latitude","longitude", "facility", "location")))
+BENZENE25 <- unique(subset(BENZENE2, select=c("latitude","longitude", "facility", "location")))
+XYLENE25 <- unique(subset(XYLENE2, select=c("latitude","longitude", "facility", "location")))
+EB25 <- unique(subset(EB2, select=c("latitude","longitude", "facility", "location")))
 
-TOLUENE3 <- sf:::as_Spatial(st_as_sf(TOLUENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
-BENZENE3 <- sf:::as_Spatial(st_as_sf(BENZENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
-XYLENE3 <- sf:::as_Spatial(st_as_sf(XYLENE2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
-EB3 <- sf:::as_Spatial(st_as_sf(EB2, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
+
+TOLUENE3 <- sf:::as_Spatial(st_as_sf(TOLUENE25, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
+BENZENE3 <- sf:::as_Spatial(st_as_sf(BENZENE25, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
+XYLENE3 <- sf:::as_Spatial(st_as_sf(XYLENE25, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
+EB3 <- sf:::as_Spatial(st_as_sf(EB25, coords = c('longitude','latitude'), crs ="+proj=longlat +datum=NAD83 +no_defs"))
 
 TOLUENE4 <- spTransform(TOLUENE3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") ) 
 BENZENE4 <- spTransform(BENZENE3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") ) 
@@ -119,5 +124,28 @@ EB4 <- spTransform(EB3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_
 
 matrixtest_t <- pointDistance(TOLUENE4, spdf2, lonlat=F, allpairs=T)
 matrixtest_b <- pointDistance(BENZENE4, spdf2, lonlat=F, allpairs=T)
+colnames(matrixtest_x) <- spdf2$epr_number_TYPE
+rownames(matrixtest_x) <- BENZENE4$location
+
 matrixtest_x <- pointDistance(XYLENE4, spdf2, lonlat=F, allpairs=T)
+colnames(matrixtest_x) <- spdf2$epr_number_TYPE
+rownames(matrixtest_x) <- XYLENE4$location
+
 matrixtest_eb <- pointDistance(EB4, spdf2, lonlat=F, allpairs=T)
+
+
+psEXP <- function(d,C0,decay) { 
+  # d : distance matrix (m x n) m = # of monitoring sites, n = # of sources
+  #  C0 : initial source concentrations
+  # decay: vector of buffer values (presumably in the same units as d)
+  X.ps <- matrix(NA,nrow = nrow(d),ncol = length(decay))
+  
+  decay.func <- function(x) sum(C0 * exp(-3 * x / decay[i]))
+  
+  for (i in 1:length(decay)){
+    X.ps[,i] <- d %>% apply(1,decay.func)
+  }
+  
+  return(X.ps)
+  
+}
