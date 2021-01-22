@@ -85,13 +85,24 @@ length(unique(EB2$location))
 
 
 
-write.csv(TOLUENE2, file="~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv", row.names=F) #all addresses
-write.csv(BENZENE2, file="~/Desktop/TRI/tri_tot/BENZENE_allyears.csv", row.names=F) #all addresses
-write.csv(XYLENE2, file="~/Desktop/TRI/tri_tot/XYLENE_allyears.csv", row.names=F) #all addresses
-write.csv(EB2, file="~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv", row.names=F) #all addresses
+#write.csv(TOLUENE2, file="~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv", row.names=F) #all addresses
+#write.csv(BENZENE2, file="~/Desktop/TRI/tri_tot/BENZENE_allyears.csv", row.names=F) #all addresses
+#write.csv(XYLENE2, file="~/Desktop/TRI/tri_tot/XYLENE_allyears.csv", row.names=F) #all addresses
+#write.csv(EB2, file="~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv", row.names=F) #all addresses
 
 
 #Melissa will do research on finding mean values across single point over multiple years.
+
+# TOLUENE2 <- read.csv("~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv") #all addresses
+#BENZENE2 <- read.csv("~/Desktop/TRI/tri_tot/BENZENE_allyears.csv") #all addresses
+#XYLENE2 <- read.csv("~/Desktop/TRI/tri_tot/XYLENE_allyears.csv") #all addresses
+#EB2 <- read.csv("~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv") #all addresses
+
+length(unique(TOLUENE2$location)) #3172
+length(unique(BENZENE2$location)) # 1755
+length(unique(XYLENE2$location)) #5568
+length(unique(EB2$location)) #3172
+
 
 
 #Turn these into spatial points dataframes
@@ -123,15 +134,20 @@ EB4 <- spTransform(EB3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_
 #determine the size in bytes - convert to mb or gb and run a loop to create matrices of different sizes
 
 matrixtest_t <- pointDistance(TOLUENE4, spdf2, lonlat=F, allpairs=T)
+colnames(matrixtest_t) <- spdf2$epr_number_TYPE
+rownames(matrixtest_t) <- TOLUENE4$location
+
 matrixtest_b <- pointDistance(BENZENE4, spdf2, lonlat=F, allpairs=T)
-colnames(matrixtest_x) <- spdf2$epr_number_TYPE
-rownames(matrixtest_x) <- BENZENE4$location
+colnames(matrixtest_b) <- spdf2$epr_number_TYPE
+rownames(matrixtest_b) <- BENZENE4$location
 
 matrixtest_x <- pointDistance(XYLENE4, spdf2, lonlat=F, allpairs=T)
 colnames(matrixtest_x) <- spdf2$epr_number_TYPE
 rownames(matrixtest_x) <- XYLENE4$location
 
 matrixtest_eb <- pointDistance(EB4, spdf2, lonlat=F, allpairs=T)
+colnames(matrixtest_eb) <- spdf2$epr_number_TYPE
+rownames(matrixtest_eb) <- EB4$location
 
 
 psEXP <- function(d,C0,decay) { 

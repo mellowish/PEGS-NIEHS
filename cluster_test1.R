@@ -14,8 +14,15 @@ library(reshape2)
 library(ggplot2)
 library(tidyverse)
 
+PEGS3 <- read.csv("~/Desktop/PEGS_CensusTractAddresses.csv")
+PEGS2 <- subset(PEGS3, !is.na(PEGS3$geo_latitude))
+
+
+
 #some subjects have more than 1 address, need to modify our epr number so these can be dealt with
 PEGS2$epr_number_TYPE <- ifelse(PEGS2$geo_study_event == "Exposome Part A - Current Address", paste0(PEGS2$epr_number, "_2"),paste0(PEGS2$epr_number, "_1"))
+
+
 
 xy <- PEGS2[,c("geo_longitude","geo_latitude")] #extract longitude and latitude
 #transform to spatial data frame
@@ -27,7 +34,9 @@ spdf2 <- spTransform(spdf,  CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +
 
 
 #import roads spatial data
-roads <-rgdal::readOGR(dsn="/ddn/gs1/group/shag/loweme/pegs_majorroads/roadtrl010g.shp_nt00920")
+roads <-rgdal::readOGR(dsn="~/Desktop/roadtrl010g.shp_nt00920")
+
+#roads <-rgdal::readOGR(dsn="/ddn/gs1/group/shag/loweme/pegs_majorroads/roadtrl010g.shp_nt00920")
 roads@proj4string
 #project to alberts equal area conic so that we can calculate euclidean distances
 
@@ -41,25 +50,19 @@ lbuff_1km <- lapply(l, gBuffer, width = 1000)
 
 e <- NA #make an empty item
 rd_1kmfun <- function(i){
-  tryCatch(raster::crop(roads, extent(lbuff_1km[[i]])), error = function(e) e)
+  rd_1km <- tryCatch(raster::crop(roads, extent(lbuff_1km[[i]])), error = function(e) e)
+  ## Mess with this to make it work in the lapply.
+  ifelse(class(rd_1km)[1] == "simpleError", NA, gLength(rd_1km, byid=F))
+  #find total road length in buffer if there are roads within the buffer
+  #otherwise, NA. "simpleError" is produced by the trycatch when it fails
+  
   #trycatch is used to manage the errors where there are no roads within 10km, "simpleError" is what is left
 #crop the roads around each address
   }
 
-
-rd_1km <- lapply(1:length(spdf2), rd_1kmfun)
-#apply the function across spdf2
-
-totrd_1kmfun <- function(i){
-  
-  ifelse(class(rd_1km[[i]])[1] == "simpleError", NA, gLength(rd_1km[[i]], byid=F))
-  #find total road length in buffer if there are roads within the buffer
-  #otherwise, NA. "simpleError" is produced by the trycatch when it fails
-}
-
-totrd_1km <- lapply(1:length(spdf2), totrd_1kmfun) # lapply statement with that function
-
-
-save(rd_1km, file = "/ddn/gs1/group/shag/loweme/pegs_majorroads/rd_1kmtry.RData")
+library(tictoc)
+tic()
+totrd_1km<- lapply(1:length(spdf2), rd_1kmfun)
+toc()
 save(totrd_1km,file = "/ddn/gs1/group/shag/loweme/pegs_majorroads/totrd_1kmtry.RData")
 
