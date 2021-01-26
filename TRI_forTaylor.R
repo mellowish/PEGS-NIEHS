@@ -91,7 +91,6 @@ length(unique(EB2$location))
 #write.csv(EB2, file="~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv", row.names=F) #all addresses
 
 
-#Melissa will do research on finding mean values across single point over multiple years.
 
 # TOLUENE2 <- read.csv("~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv") #all addresses
 # BENZENE2 <- read.csv("~/Desktop/TRI/tri_tot/BENZENE_allyears.csv") #all addresses
@@ -160,32 +159,30 @@ XYLENE4 <- spTransform(XYLENE3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37
 EB4 <- spTransform(EB3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") ) 
 
 
-#sparse matrices? 
-#determine the size in bytes - convert to mb or gb and run a loop to create matrices of different sizes
 
-matrixtest_t <- pointDistance(TOLUENE4, spdf2, lonlat=F, allpairs=T)
-matrixtest_t <- ifelse(matrixtest_t == 0, NA, matrixtest_t)
-colnames(matrixtest_t) <- spdf2$epr_number_TYPE
-rownames(matrixtest_t) <- TOLUENE4$location
-matrixtest_t <- t(matrixtest_t)
+matrixtest_t <- pointDistance(TOLUENE4, spdf2, lonlat=F, allpairs=T) #find distances between tri sites and addresses
+matrixtest_t <- ifelse(matrixtest_t <= 0, NA, matrixtest_t) # make sure there aren't any 0 or negative values
+colnames(matrixtest_t) <- spdf2$epr_number_TYPE #make sure we keep the names for addresses
+rownames(matrixtest_t) <- TOLUENE4$location #and the TRI sites
+matrixtest_t <- t(matrixtest_t) # transpose to match mxn structure
 
 
 matrixtest_b <- pointDistance(BENZENE4, spdf2, lonlat=F, allpairs=T)
-matrixtest_b <- ifelse(matrixtest_b == 0, NA, matrixtest_b)
+matrixtest_b <- ifelse(matrixtest_b <= 0, NA, matrixtest_b)
 colnames(matrixtest_b) <- spdf2$epr_number_TYPE
 rownames(matrixtest_b) <- BENZENE4$location
 matrixtest_b <- t(matrixtest_b)
 
 
 matrixtest_x <- pointDistance(XYLENE4, spdf2, lonlat=F, allpairs=T)
-matrixtest_x <- ifelse(matrixtest_x == 0, NA, matrixtest_x)
+matrixtest_x <- ifelse(matrixtest_x <= 0, NA, matrixtest_x)
 colnames(matrixtest_x) <- spdf2$epr_number_TYPE
 rownames(matrixtest_x) <- XYLENE4$location
 matrixtest_x <- t(matrixtest_x)
 
 
 matrixtest_eb <- pointDistance(EB4, spdf2, lonlat=F, allpairs=T)
-matrixtest_eb <- ifelse(matrixtest_eb == 0, NA, matrixtest_eb)
+matrixtest_eb <- ifelse(matrixtest_eb <= 0, NA, matrixtest_eb)
 colnames(matrixtest_eb) <- spdf2$epr_number_TYPE
 rownames(matrixtest_eb) <- EB4$location
 matrixtest_eb <- t(matrixtest_eb)
@@ -212,9 +209,33 @@ psEXP <- function(d,C0,decay) {
 #xloc <- unique(XYLENE2$location) #5568
 #ebloc <- unique(EB2$location) #3172
 
-decay2 <- c(1000,5000,10000)
-test_benzene <- psEXP(matrixtest_b, BENZENE2.0$stackair, decay2)
+#apply exponential decay function across the 12339 sites
+
+
+decay2 <- c(1000,5000,10000) #decay distance options in meteres
+test_benzene <- psEXP(matrixtest_b, BENZENE2.0$stackair, decay2) #apply decay function
+test_benzene <- as.data.frame(cbind(spdf2$epr_number_TYPE, test_benzene))#add epr identifier
+names(test_benzene) <-  c("epr_number_TYPE", "epdecay_1km", "epdecay_5km","epdecay_10km") #label columns
+
 test_eb <- psEXP(matrixtest_eb, EB2.0$stackair, decay2)
+test_eb <- as.data.frame(cbind(spdf2$epr_number_TYPE, test_eb))
+names(test_eb) <-  c("epr_number_TYPE", "epdecay_1km", "epdecay_5km","epdecay_10km")
+
+
 test_xylene <- psEXP(matrixtest_x, XYLENE2.0$stackair, decay2)
+test_xylene <- as.data.frame(cbind(spdf2$epr_number_TYPE, test_xylene))
+names(test_xylene) <-  c("epr_number_TYPE", "epdecay_1km", "epdecay_5km","epdecay_10km")
+
+
 test_toluene <- psEXP(matrixtest_t, TOLUENE2.0$stackair, decay2)
+test_toluene <- as.data.frame(cbind(spdf2$epr_number_TYPE, test_toluene))
+names(test_toluene) <-  c("epr_number_TYPE", "epdecay_1km", "epdecay_5km","epdecay_10km")
+
+
+
+write.csv(test_toluene, "~/Desktop/TRI/TOLUENE_decay.csv") #all addresses
+write.csv(test_benzene, "~/Desktop/TRI/BENZENE_decay.csv") #all addresses
+write.csv(test_xylene, "~/Desktop/TRI/XYLENE_decay.csv") #all addresses
+write.csv(test_eb, "~/Desktop/TRI/TOLUENE_decay.csv") #all addresses
+
 
