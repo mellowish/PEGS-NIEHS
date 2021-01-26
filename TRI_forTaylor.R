@@ -94,15 +94,45 @@ length(unique(EB2$location))
 #Melissa will do research on finding mean values across single point over multiple years.
 
 # TOLUENE2 <- read.csv("~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv") #all addresses
-#BENZENE2 <- read.csv("~/Desktop/TRI/tri_tot/BENZENE_allyears.csv") #all addresses
-#XYLENE2 <- read.csv("~/Desktop/TRI/tri_tot/XYLENE_allyears.csv") #all addresses
-#EB2 <- read.csv("~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv") #all addresses
+# BENZENE2 <- read.csv("~/Desktop/TRI/tri_tot/BENZENE_allyears.csv") #all addresses
+# XYLENE2 <- read.csv("~/Desktop/TRI/tri_tot/XYLENE_allyears.csv") #all addresses
+# EB2 <- read.csv("~/Desktop/TRI/tri_tot/TOLUENE_allyears.csv") #all addresses
 
-length(unique(TOLUENE2$location)) #3172
-length(unique(BENZENE2$location)) # 1755
-length(unique(XYLENE2$location)) #5568
-length(unique(EB2$location)) #3172
+tloc <- unique(TOLUENE2$location) #3172
+bloc <- unique(BENZENE2$location) # 1755
+xloc <- unique(XYLENE2$location) #5568
+ebloc <- unique(EB2$location) #3172
+library(dplyr)
+TOLUENE2.0 <- NULL
+for (i in 1:3172)
+{
+   tol2 <- subset(TOLUENE2, TOLUENE2$location == tloc[i]) %>% summarise(stackair = mean(X46..5.2...STACK.AIR), fugair = mean(X45..5.1...FUGITIVE.AIR),loc2 = location) %>% unique()
+   TOLUENE2.0 <- rbind(TOLUENE2.0, tol2)
+}
 
+
+BENZENE2.0 <- NULL
+for (i in 1:1755)
+{
+  ben2 <- subset(BENZENE2, BENZENE2$location == bloc[i]) %>% summarise(stackair = mean(X46..5.2...STACK.AIR), fugair = mean(X45..5.1...FUGITIVE.AIR),loc2 = location) %>% unique()
+  BENZENE2.0 <- rbind(BENZENE2.0, ben2)
+}
+
+
+XYLENE2.0 <- NULL
+for (i in 1:5568)
+{
+  xol2 <- subset(XYLENE2, XYLENE2$location == xloc[i]) %>% summarise(stackair = mean(X46..5.2...STACK.AIR), fugair = mean(X45..5.1...FUGITIVE.AIR),loc2 = location) %>% unique()
+  XYLENE2.0 <- rbind(XYLENE2.0, xol2)
+}
+
+
+EB2.0 <- NULL
+for (i in 1:3172)
+{
+  eb2 <- subset(EB2, EB2$location == ebloc[i]) %>% summarise(stackair = mean(X46..5.2...STACK.AIR), fugair = mean(X45..5.1...FUGITIVE.AIR),loc2 = location) %>% unique()
+  EB2.0 <- rbind(EB2.0, eb2)
+}
 
 
 #Turn these into spatial points dataframes
@@ -134,20 +164,31 @@ EB4 <- spTransform(EB3, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_
 #determine the size in bytes - convert to mb or gb and run a loop to create matrices of different sizes
 
 matrixtest_t <- pointDistance(TOLUENE4, spdf2, lonlat=F, allpairs=T)
+matrixtest_t <- ifelse(matrixtest_t == 0, NA, matrixtest_t)
 colnames(matrixtest_t) <- spdf2$epr_number_TYPE
 rownames(matrixtest_t) <- TOLUENE4$location
+matrixtest_t <- t(matrixtest_t)
+
 
 matrixtest_b <- pointDistance(BENZENE4, spdf2, lonlat=F, allpairs=T)
+matrixtest_b <- ifelse(matrixtest_b == 0, NA, matrixtest_b)
 colnames(matrixtest_b) <- spdf2$epr_number_TYPE
 rownames(matrixtest_b) <- BENZENE4$location
+matrixtest_b <- t(matrixtest_b)
+
 
 matrixtest_x <- pointDistance(XYLENE4, spdf2, lonlat=F, allpairs=T)
+matrixtest_x <- ifelse(matrixtest_x == 0, NA, matrixtest_x)
 colnames(matrixtest_x) <- spdf2$epr_number_TYPE
 rownames(matrixtest_x) <- XYLENE4$location
+matrixtest_x <- t(matrixtest_x)
+
 
 matrixtest_eb <- pointDistance(EB4, spdf2, lonlat=F, allpairs=T)
+matrixtest_eb <- ifelse(matrixtest_eb == 0, NA, matrixtest_eb)
 colnames(matrixtest_eb) <- spdf2$epr_number_TYPE
 rownames(matrixtest_eb) <- EB4$location
+matrixtest_eb <- t(matrixtest_eb)
 
 
 psEXP <- function(d,C0,decay) { 
@@ -165,3 +206,15 @@ psEXP <- function(d,C0,decay) {
   return(X.ps)
   
 }
+
+#tloc <- unique(TOLUENE2$location) #3172
+#bloc <- unique(BENZENE2$location) # 1755
+#xloc <- unique(XYLENE2$location) #5568
+#ebloc <- unique(EB2$location) #3172
+
+decay2 <- c(1000,5000,10000)
+test_benzene <- psEXP(matrixtest_b, BENZENE2.0$stackair, decay2)
+test_eb <- psEXP(matrixtest_eb, EB2.0$stackair, decay2)
+test_xylene <- psEXP(matrixtest_x, XYLENE2.0$stackair, decay2)
+test_toluene <- psEXP(matrixtest_t, TOLUENE2.0$stackair, decay2)
+
