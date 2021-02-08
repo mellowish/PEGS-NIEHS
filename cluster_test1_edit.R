@@ -40,18 +40,14 @@ roads <- st_as_sf(roads, CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon
   e <- NA #make an empty item
   rd_1kmfun <- function(i){
     lbuff_1km <- gBuffer(l[[i]], width = 1000)
-    rd_1km <- tryCatch(raster::crop(roads, extent(lbuff_1km)), error = function(e) e)
-    ## Mess with this to make it work in the lapply.
-    ifelse(class(rd_1km)[1] == "simpleError", NA, gLength(rd_1km, byid=F))
-    #find total road length in buffer if there are roads within the buffer
-    #otherwise, NA. "simpleError" is produced by the trycatch when it fails
+    extent1km <- st_set_crs(st_geometry(st_as_sf(as(lbuff_1km, "SpatialPolygons"))),"+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs")
     
-    #trycatch is used to manage the errors where there are no roads within 10km, "simpleError" is what is left
-    #crop the roads around each address
+    rd_1km <- tryCatch(st_intersection(roads,extent1km), error = function(e) e)
+    ifelse(nrow(rd_1km) == 0, NA, sum(rd_1km$KILOMETERS))
   }
   
 
-  totrd_1km<- lapply(1:length(spdf2), rd_1kmfun)
+  totrd_1km<- lapply(1:20, rd_1kmfun)
  # totrd_1km<- lapply(1:15, rd_1kmfun)
   
   save(totrd_1km,file = "/ddn/gs1/group/shag/loweme/pegs_majorroads/totrd_1kmtry.RData")
