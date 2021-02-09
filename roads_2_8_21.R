@@ -18,7 +18,7 @@ library(units)
 #### IMPORT THE DATA ####
 ### TWO OPTIONS: one for the cluster and one for testing ###
 
-#PEGS3 <- read.csv("~/Desktop/PEGS_CensusTractAddresses.csv")
+PEGS3 <- read.csv("~/Desktop/PEGS_CensusTractAddresses.csv")
 
 #PEGS3 <- read.csv("/ddn/gs1/group/shag/loweme/pegs_majorroads/PEGS_CensusTractAddresses.csv")
 
@@ -36,10 +36,10 @@ PEGS2$epr_number_TYPE <- ifelse(PEGS2$geo_study_event == "Exposome Part A - Curr
 
 ### PEGS should be transformed into a spatial points dataframe. (or simpler? sf object)
 
-xy <- PEGS2[,c("geo_longitude","geo_latitude")] #longitude, then latitude
+#xy <- PEGS2[,c("geo_longitude","geo_latitude")] #longitude, then latitude
 
-spdf <- SpatialPointsDataFrame(coords = xy, data = PEGS2,
-                               proj4string = CRS("+proj=longlat +datum=NAD83 +no_defs"))
+#spdf <- SpatialPointsDataFrame(coords = xy, data = PEGS2,
+#                               proj4string = CRS("+proj=longlat +datum=NAD83 +no_defs"))
 
 projcrs <- "+proj=longlat +datum=NAD83 +no_defs"
 df_sf <- st_as_sf(x = PEGS2,                         
@@ -77,7 +77,7 @@ density_5km <- NA
 density_10km <- NA
 library(tictoc)
 tic()
-for ( i in 1:30){
+for ( i in 1:12339){
   
 sf2_buffer1 <-  st_buffer(sf2[i,], 1000)
 sf2_buffer2 <-  st_buffer(sf2[i,], 5000)
@@ -101,29 +101,6 @@ density_5km <- c(density_5km, length_test2)
 density_10km <- c(density_10km, length_test3)
 }
 toc()
-
-
-
-library(tictoc)
-thisisthefunction <- function(i){
-  
-  sf2_buffer1 <-  st_buffer(sf2[i,], 1000)
-  sf2_buffer2 <-  st_buffer(sf2[i,], 5000)
-  sf2_buffer3 <-  st_buffer(sf2[i,], 10000)
-  
-  
-  #mapview(sf2_buffer2)
-  
-  testcrop1 <- st_crop(roads3, sf2_buffer1)
-  testcrop2 <- st_crop(roads3, sf2_buffer2)
-  testcrop3 <- st_crop(roads3, sf2_buffer3)
-  
-  #mapview(testcrop)
-  
-  c(sum(st_length(testcrop1)), sum(st_length(testcrop2)),sum(st_length(testcrop3)))
-  
-}
-
 
 
 
