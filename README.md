@@ -3,7 +3,7 @@
 ## File Names and Descriptions  ##
 ############## ____________________________ ##############
 
-#Primary contributors: Melissa Lowe and Kyle Messier
+### Primary contributors: Melissa Lowe and Kyle Messier
 
 #ACAG_ANNUAL_WGET.sh  | simple sh to extract files from website - written by Kyle Messier
 
