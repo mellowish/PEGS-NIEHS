@@ -1,7 +1,7 @@
 # PEGS-NIEHS
 
 ## File Names and Descriptions  ##
-############## ____________________________ ##############
+
 
 ### Primary contributors: Melissa Lowe and Kyle Messier
 
