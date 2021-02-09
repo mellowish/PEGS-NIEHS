@@ -1,9 +1,11 @@
 # PEGS-NIEHS
 
-## File Names and Descriptions 
+## File Names and Descriptions  ##
 ############## ____________________________ ##############
-# ACAG_ANNUAL_WGET.sh  | simple sh to extract files from website - written by Kyle Messier
 
+# Primary contributors: Melissa Lowe and Kyle messier
+
+# ACAG_ANNUAL_WGET.sh  | simple sh to extract files from website - written by Kyle Messier
 
 #ACAG_maps.R  | use merged data to make maps of ACAG and CACES estimates at geocoded locations
 
