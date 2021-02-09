@@ -2,7 +2,7 @@
 
 ## File Names and Descriptions 
 
-# ACAG_ANNUAL_WGET.sh  | wget --recursive --no-parent --reject index.html* ftp://stetson.phys.dal.ca/Aaron/V4NA02/Annual/netcdf/, simple sh to extract files from website - written by Kyle Messier
+# ACAG_ANNUAL_WGET.sh  | simple sh to extract files from website - written by Kyle Messier
 
 
 #ACAG_maps.R  | use merged data to make maps of ACAG and CACES estimates at geocoded locations
