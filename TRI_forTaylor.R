@@ -16,7 +16,7 @@ library(rgeos)
 library(nngeo)
 
 ###import PEGS addresses ###
-PEGS3 <- read.csv("~/Desktop/PEGS_CensusTractAddresses.csv")
+PEGS3 <- read.csv("~/Desktop/PEGSfiles/PEGS_CensusTractAddresses.csv")
 PEGS2 <- subset(PEGS3, !is.na(PEGS3$geo_latitude))
 
 
@@ -236,6 +236,6 @@ names(test_toluene) <-  c("epr_number_TYPE", "epdecay_1km", "epdecay_5km","epdec
 write.csv(test_toluene, "~/Desktop/TRI/TOLUENE_decay.csv") #all addresses
 write.csv(test_benzene, "~/Desktop/TRI/BENZENE_decay.csv") #all addresses
 write.csv(test_xylene, "~/Desktop/TRI/XYLENE_decay.csv") #all addresses
-write.csv(test_eb, "~/Desktop/TRI/TOLUENE_decay.csv") #all addresses
+write.csv(test_eb, "~/Desktop/TRI/ETHYLBENZENE_decay.csv") #all addresses
 
 
